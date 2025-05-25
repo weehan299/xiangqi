@@ -1,0 +1,16 @@
+
+# build output
+/build/
+
+# VSCode settings
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
