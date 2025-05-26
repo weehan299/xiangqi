@@ -1,20 +1,32 @@
+// AIEngine.h
+#pragma once
 
-#ifndef AIENGINE_H
-#define AIENGINE_H
-
+#include <memory>
 #include "Board.h"
-#include <random>
+#include <SFML/System/Vector2.hpp>
 
+// Strategy interface for move selection
+class MoveStrategy {
+public:
+    virtual ~MoveStrategy() = default;
+    // Given the current board and AI side, return a move (src, dst)
+    virtual std::pair<sf::Vector2i, sf::Vector2i>
+    selectMove(const Board& board, Side aiSide) = 0; // =0 syntax makes this a pure virtual function
+};
+
+// AI engine that uses a MoveStrategy
 class AIEngine {
 public:
-    AIEngine(Side aiSide);
+    // Construct with side and initial strategy
+    AIEngine(Side side, std::unique_ptr<MoveStrategy> strategy);
 
-    // Choose and play one move on the board
+    // Change the algorithm at runtime
+    void setStrategy(std::unique_ptr<MoveStrategy> strategy);
+
+    // Called each frame to make the AI move when it's its turn
     void makeMove(Board& board);
 
 private:
     Side aiSide;
-    std::mt19937 rng;
+    std::unique_ptr<MoveStrategy> strategy;
 };
-
-#endif // AIENGINE_H

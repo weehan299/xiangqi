@@ -5,6 +5,9 @@
 #include <iostream>
 #include "AIEngine.h"
 #include "NetworkManager.h"
+#include "RandomStrategy.h"
+#include "MinimaxStrategy.h"
+
 
 int main() {
     sf::RenderWindow window({ COLUMNS * (unsigned)CELL_SIZE,
@@ -14,7 +17,10 @@ int main() {
     sf::View boardView({0.f, 0.f, COLUMNS * CELL_SIZE, ROWS * CELL_SIZE});
     window.setView(boardView);
     Board board;
-    AIEngine ai(Side::Black);
+    // Create AI with random strategy
+    AIEngine ai(Side::Black, std::make_unique<RandomStrategy>());
+    // Later, switch to minimax of depth 3
+    ai.setStrategy(std::make_unique<MinimaxStrategy>(3));
     //NetworkManager net;
 
     // ------ drag and drop state -------

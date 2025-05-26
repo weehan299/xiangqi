@@ -247,7 +247,7 @@ Board::getLegalMoves(Side side) const {
                 const Piece* dest = pieceAt(x, y);       // calls the const overload
                 if (dest && dest->getSide() == side)     // same-side → skip
                     continue;
-                if (isLegalMove(const_cast<Piece*>(&p), x, y))
+                if (isLegalMove(&p, x, y))
                     moves.emplace_back(src, sf::Vector2i(x, y));
             }
         }

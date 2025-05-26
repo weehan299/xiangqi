@@ -1,19 +1,23 @@
 
+// AIEngine.cpp
 #include "AIEngine.h"
+#include <random>
 
-AIEngine::AIEngine(Side side)
-: aiSide(side)
-, rng(std::random_device{}())
-{}
+// AIEngine definitions
+AIEngine::AIEngine(Side side, std::unique_ptr<MoveStrategy> strat)
+    : aiSide(side), strategy(std::move(strat)) {}
+
+void AIEngine::setStrategy(std::unique_ptr<MoveStrategy> strat) {
+    strategy = std::move(strat);
+}
 
 void AIEngine::makeMove(Board& board) {
-    // only move if it's the AI’s turn
     if (board.getCurrentTurn() != aiSide) return;
-
-    auto moves = board.getLegalMoves(aiSide);
-    if (moves.empty()) return;
-
-    std::uniform_int_distribution<size_t> dist(0, moves.size() - 1);
-    auto [src, dst] = moves[dist(rng)];
-    board.movePiece(src.x, src.y, dst.x, dst.y);
+    auto move = strategy->selectMove(board, aiSide);
+    // Validate move to determine if aiengine successfully selected a move
+    if (move.first.x < 0) return;
+    board.movePiece(
+        move.first.x, move.first.y,
+        move.second.x, move.second.y
+    );
 }
