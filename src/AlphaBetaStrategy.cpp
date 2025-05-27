@@ -11,7 +11,7 @@ namespace {
     // Piece value heuristic
     int pieceValue(PieceType type) {
         switch (type) {
-            case PieceType::General:   return 10000;
+            case PieceType::General:   return 100000;
             case PieceType::Advisor:   return 20;
             case PieceType::Elephant:  return 20;
             case PieceType::Horse:     return 40;

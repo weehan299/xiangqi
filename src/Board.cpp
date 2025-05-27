@@ -234,6 +234,39 @@ bool Board::isLegalMove(const Piece* p, int dx, int dy) const {
     }
     return true;
 }
+//---------------------------------------
+// Actual move logic (no in-check guard)
+//---------------------------------------
+bool Board::movePieceInternal(int sx, int sy, int dx, int dy) {
+    // 1) find source piece
+    auto srcIt = std::find_if(pieces.begin(), pieces.end(), [&](const Piece& p) {
+        return p.getBoardPosition() == sf::Vector2i(sx, sy);
+    });
+    if (srcIt == pieces.end()) return false;
+
+    // 2) find any destination piece
+    auto dstIt = std::find_if(pieces.begin(), pieces.end(), [&](const Piece& p) {
+        return p.getBoardPosition() == sf::Vector2i(dx, dy);
+    });
+
+    // 3) record the move
+    MoveRecord rec{ sx, sy, dx, dy, std::nullopt };
+    if (dstIt != pieces.end()) {
+        rec.capturedPiece = *dstIt;
+        pieces.erase(dstIt);
+        if (dstIt < srcIt) --srcIt;
+    }
+    moveHistory.push_back(rec);
+
+    // 4) move the piece
+    srcIt->setBoardPosition(dx, dy);
+
+    // 5) switch turn
+    currentTurn = (currentTurn == Side::Red ? Side::Black : Side::Red);
+
+    return true;
+}
+
 
 std::vector<std::pair<sf::Vector2i, sf::Vector2i>>
 Board::getLegalMoves(Side side) const {
@@ -252,9 +285,54 @@ Board::getLegalMoves(Side side) const {
             }
         }
     }
-    return moves;
+    // If we're not in check, all those moves are fine:
+    if (!isInCheck(side)) return moves;
+
+    // only give moves that escape checks
+    std::vector<std::pair<sf::Vector2i, sf::Vector2i>> escapeMoves;
+    Board* self = const_cast<Board*>(this);
+    for (const auto& m : moves) {
+        // apply
+        self->movePieceInternal(m.first.x, m.first.y, m.second.x, m.second.y);
+        // if king is safe now, keep it
+        if (!self->isInCheck(side))
+            std::cout << "Found escape move: " << m.first.x << "," << m.first.y << " → " << m.second.x << "," << m.second.y << std::endl;
+            escapeMoves.push_back(m);
+        // undo
+        self->undoMove();
+    }
+    return escapeMoves;
 }
 
+
+
+// ----------------------------------------------------------------------------
+// 1) isInCheck implementation
+// ----------------------------------------------------------------------------
+bool Board::isInCheck(Side side) const {
+    // 1) Find that side’s general
+    sf::Vector2i kingPos(-1, -1);
+    for (const auto& p : pieces) {
+        if (p.getType() == PieceType::General && p.getSide() == side) {
+            kingPos = p.getBoardPosition();
+            break;
+        }
+    }
+    if (kingPos.x < 0) {
+        // no general found?  shouldn’t happen in a valid game, but safe-guard
+        return false;
+    }
+
+    // 2) See if any enemy piece has a legal (shape-only) attack on kingPos
+    for (const auto& attacker : pieces) {
+        if (attacker.getSide() == side) continue;
+        // isLegalMove only checks move-shape and blocking rules, not “leaving king in check”
+        if (isLegalMove(&attacker, kingPos.x, kingPos.y))
+            return true;
+    }
+
+    return false;
+}
 
 /*
 
@@ -287,6 +365,7 @@ bool Board::movePiece(int sx, int sy, int dx, int dy) {
 }
 */
 
+
 bool Board::movePiece(int sx, int sy, int dx, int dy) {
     // Locate the source piece iterator
     auto srcIt = std::find_if(pieces.begin(), pieces.end(), [&](const Piece& q) {
@@ -307,15 +386,14 @@ bool Board::movePiece(int sx, int sy, int dx, int dy) {
     });
     // Prevent capturing your own
     if (dstIt != pieces.end() && dstIt->getSide() == srcIt->getSide()) return false;
-
-
+    
     // --- RECORD the move (aggregate‐init leaves capturedPiece empty) ---
     MoveRecord rec{ sx, sy, dx, dy, std::nullopt };
     if (dstIt != pieces.end()) {
         // copy the captured Piece into the optional
         rec.capturedPiece = *dstIt;
     }
-   moveHistory.push_back(std::move(rec));
+    moveHistory.push_back(std::move(rec));
 
     // Remove destination piece if present
     if (dstIt != pieces.end()) {
@@ -357,13 +435,8 @@ void Board::undoMove() {
         std::cerr << "Undo: moved piece not found at expected dst\n";
     }
 
-
-    std::cout << "Undo: moved piece from " << rec.dx << "," << rec.dy
-              << " back to " << rec.sx << "," << rec.sy << std::endl;
     // 4) if there was a capture, restore it
     if (rec.capturedPiece) {
-        std::cout << "Undo: restoring captured piece at " 
-                  << rec.dx << "," << rec.dy << std::endl;
         // place it back at the capture square
         Piece& cp = *rec.capturedPiece;
         cp.setBoardPosition(rec.dx, rec.dy);

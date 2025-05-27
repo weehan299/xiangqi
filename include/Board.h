@@ -27,10 +27,12 @@ public:
     bool canUndo() const;
     /// Undo the last move (if any)
     void undoMove();
+    bool isInCheck(Side side) const;
 
 private:
     Side currentTurn; // Whose turn it is (Red starts)
     bool isLegalMove(const Piece* p, int dx, int dy) const;
+    bool movePieceInternal(int sx, int sy, int dx, int dy);
     sf::Texture boardTexture;
     sf::Sprite boardSprite;
     sf::Texture pieceTextures[7][2]; // type & side
