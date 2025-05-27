@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "Piece.h"
+#include <optional>
 
 static constexpr float CELL_SIZE = 64.f;
 static constexpr unsigned COLUMNS = 9;
@@ -21,8 +22,11 @@ public:
     const Piece* pieceAt(int x, int y) const;
     bool movePiece(int sx, int sy, int dx, int dy);
     Side getCurrentTurn() const;
-
     std::vector<std::pair<sf::Vector2i, sf::Vector2i>> getLegalMoves(Side side) const;
+    /// Can we undo?
+    bool canUndo() const;
+    /// Undo the last move (if any)
+    void undoMove();
 
 private:
     Side currentTurn; // Whose turn it is (Red starts)
@@ -31,6 +35,13 @@ private:
     sf::Sprite boardSprite;
     sf::Texture pieceTextures[7][2]; // type & side
     std::vector<Piece> pieces;
+    // record one move; if nothing was captured, capturedPiece==std::nullopt
+    struct MoveRecord {
+        int sx, sy;
+        int dx, dy;
+        std::optional<Piece>  capturedPiece;  // copy of the captured piece
+    };
+    std::vector<MoveRecord> moveHistory;
 };
 
 #endif // BOARD_H

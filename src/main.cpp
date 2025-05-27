@@ -7,6 +7,7 @@
 #include "NetworkManager.h"
 #include "RandomStrategy.h"
 #include "MinimaxStrategy.h"
+#include "AlphaBetaStrategy.h"
 
 
 int main() {
@@ -20,7 +21,7 @@ int main() {
     // Create AI with random strategy
     AIEngine ai(Side::Black, std::make_unique<RandomStrategy>());
     // Later, switch to minimax of depth 3
-    ai.setStrategy(std::make_unique<MinimaxStrategy>(3));
+    ai.setStrategy(std::make_unique<AlphaBetaStrategy>(3));
     //NetworkManager net;
 
     // ------ drag and drop state -------
@@ -48,9 +49,6 @@ int main() {
                         selected = board.pieceAt(bx, by);
                         if (selected) {
                             originalPos = selected->getBoardPosition();
-                            // so sprite stays under cursor
-                            std::cout << "Selected piece at: " << originalPos.x << ", " << originalPos.y << std::endl;
-                            std::cout << "m at: " << m.x << ", " << m.y << std::endl;
                             // selected->getSprite().getPosition() is where SFML is currently drawing the center (origin) of that piece’s sprite.
                             // Subtracting the two gives a 2D vector (dragOffset) from the sprite’s origin to the mouse click point.
                             dragOffset = m - selected->getSprite().getPosition();

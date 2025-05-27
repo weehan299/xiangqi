@@ -29,8 +29,8 @@ Board::Board()
     Piece::offsetY = MARGIN * scaleY;
 
     // Debug output
-    std::cout << "image size: " << tex.x << ", " << tex.y << std::endl;
-    std::cout << "Scale factors: " << scaleX << ", " << scaleY << std::endl;
+    //std::cout << "image size: " << tex.x << ", " << tex.y << std::endl;
+    //std::cout << "Scale factors: " << scaleX << ", " << scaleY << std::endl;
 
     // 4) apply uniform (or non-uniform) scale
     boardSprite.setScale(scaleX, scaleY);
@@ -308,6 +308,15 @@ bool Board::movePiece(int sx, int sy, int dx, int dy) {
     // Prevent capturing your own
     if (dstIt != pieces.end() && dstIt->getSide() == srcIt->getSide()) return false;
 
+
+    // --- RECORD the move (aggregate‐init leaves capturedPiece empty) ---
+    MoveRecord rec{ sx, sy, dx, dy, std::nullopt };
+    if (dstIt != pieces.end()) {
+        // copy the captured Piece into the optional
+        rec.capturedPiece = *dstIt;
+    }
+   moveHistory.push_back(std::move(rec));
+
     // Remove destination piece if present
     if (dstIt != pieces.end()) {
         pieces.erase(dstIt);
@@ -323,4 +332,41 @@ bool Board::movePiece(int sx, int sy, int dx, int dy) {
     // Switch turns
     currentTurn = (currentTurn == Side::Red ? Side::Black : Side::Red);
     return true;
+}
+
+bool Board::canUndo() const {
+    return !moveHistory.empty();
+}
+
+void Board::undoMove() {
+    if (moveHistory.empty()) return;
+
+    // 1) pop the last record
+    MoveRecord rec = std::move(moveHistory.back());
+    moveHistory.pop_back();
+
+    // 2) flip turn back
+    currentTurn = (currentTurn == Side::Red ? Side::Black : Side::Red);
+
+    // 3) move the piece back from rec.dx,rec.dy → rec.sx,rec.sy
+    Piece* moved = pieceAt(rec.dx, rec.dy);
+    if (moved) {
+        moved->setBoardPosition(rec.sx, rec.sy);
+    } else {
+        // shouldn't happen if logic is correct
+        std::cerr << "Undo: moved piece not found at expected dst\n";
+    }
+
+
+    std::cout << "Undo: moved piece from " << rec.dx << "," << rec.dy
+              << " back to " << rec.sx << "," << rec.sy << std::endl;
+    // 4) if there was a capture, restore it
+    if (rec.capturedPiece) {
+        std::cout << "Undo: restoring captured piece at " 
+                  << rec.dx << "," << rec.dy << std::endl;
+        // place it back at the capture square
+        Piece& cp = *rec.capturedPiece;
+        cp.setBoardPosition(rec.dx, rec.dy);
+        pieces.push_back(std::move(cp));
+    }
 }

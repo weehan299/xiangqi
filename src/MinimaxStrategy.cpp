@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "Board.h"
 #include "Piece.h"
+#include <iostream>
 
 namespace {
     // Piece value heuristic
@@ -46,7 +47,7 @@ namespace {
             return evaluateBoard(board, aiSide);
 
         if (maximizing) {
-            int maxEval = std::numeric_limits<int>::min();
+            int maxEval = std::numeric_limits<int>::min(); // Start with the worst possible value
             for (auto& m : moves) {
                 Board child = board;  // assumes Board is copyable
                 child.movePiece(m.first.x, m.first.y, m.second.x, m.second.y);
@@ -55,7 +56,7 @@ namespace {
             }
             return maxEval;
         } else {
-            int minEval = std::numeric_limits<int>::max();
+            int minEval = std::numeric_limits<int>::max(); // Start with the best possible value
             for (auto& m : moves) {
                 Board child = board;
                 child.movePiece(m.first.x, m.first.y, m.second.x, m.second.y);
@@ -79,6 +80,8 @@ MinimaxStrategy::selectMove(const Board& board, Side aiSide) {
     int bestValue = std::numeric_limits<int>::min();
     std::pair<sf::Vector2i, sf::Vector2i> bestMove = moves[0];
     for (auto& m : moves) {
+        std::cout << "Evaluating move from (" << m.first.x << ", " << m.first.y
+                  << ") to (" << m.second.x << ", " << m.second.y << ")\n";
         Board child = board;
         child.movePiece(m.first.x, m.first.y, m.second.x, m.second.y);
         int eval = minimax(child, maxDepth - 1, aiSide, false);
