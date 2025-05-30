@@ -5,9 +5,9 @@
 #include <iostream>
 #include "AIEngine.h"
 #include "NetworkManager.h"
-#include "RandomStrategy.h"
-#include "MinimaxStrategy.h"
-#include "AlphaBetaStrategy.h"
+#include "strategy/RandomStrategy.h"
+#include "strategy/MinimaxStrategy.h"
+#include "strategy/AlphaBetaStrategy.h"
 
 
 int main() {

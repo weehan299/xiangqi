@@ -1,5 +1,5 @@
 // RandomStrategy.cpp
-#include "RandomStrategy.h"
+#include "strategy/RandomStrategy.h"
 
 RandomStrategy::RandomStrategy()
     : rng(std::random_device{}()) {}

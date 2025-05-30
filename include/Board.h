@@ -28,6 +28,7 @@ public:
     /// Undo the last move (if any)
     void undoMove();
     bool isInCheck(Side side) const;
+    bool isCheckmate() const;
 
 private:
     Side currentTurn; // Whose turn it is (Red starts)

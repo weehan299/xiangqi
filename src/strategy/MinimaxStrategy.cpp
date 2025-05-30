@@ -1,6 +1,6 @@
 
 // MinimaxStrategy.cpp
-#include "MinimaxStrategy.h"
+#include "strategy/MinimaxStrategy.h"
 #include <limits>
 #include <algorithm>
 #include "Board.h"

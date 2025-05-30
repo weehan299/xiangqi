@@ -68,14 +68,14 @@ void Board::initPieces() {
     struct Setup { PieceType type; int x; int y; Side side; };
     const std::vector<Setup> setups = {
         // Black back rank
-        {PieceType::Chariot,0,0,Side::Black}, {PieceType::Horse,1,0,Side::Black}, {PieceType::Elephant,2,0,Side::Black},
+        //{PieceType::Chariot,0,0,Side::Black}, {PieceType::Horse,1,0,Side::Black}, {PieceType::Elephant,2,0,Side::Black},
         {PieceType::Advisor,3,0,Side::Black}, {PieceType::General,4,0,Side::Black}, {PieceType::Advisor,5,0,Side::Black},
-        {PieceType::Elephant,6,0,Side::Black}, {PieceType::Horse,7,0,Side::Black}, {PieceType::Chariot,8,0,Side::Black},
+        //{PieceType::Elephant,6,0,Side::Black}, {PieceType::Horse,7,0,Side::Black}, {PieceType::Chariot,8,0,Side::Black},
         // Black cannons
-        {PieceType::Cannon,1,2,Side::Black}, {PieceType::Cannon,7,2,Side::Black},
+        //{PieceType::Cannon,1,2,Side::Black}, {PieceType::Cannon,7,2,Side::Black},
         // Black soldiers
-        {PieceType::Soldier,0,3,Side::Black}, {PieceType::Soldier,2,3,Side::Black}, {PieceType::Soldier,4,3,Side::Black},
-        {PieceType::Soldier,6,3,Side::Black}, {PieceType::Soldier,8,3,Side::Black},
+        //{PieceType::Soldier,0,3,Side::Black}, {PieceType::Soldier,2,3,Side::Black}, {PieceType::Soldier,4,3,Side::Black},
+        //{PieceType::Soldier,6,3,Side::Black}, {PieceType::Soldier,8,3,Side::Black},
         // Red back rank
         {PieceType::Chariot,0,9,Side::Red}, {PieceType::Horse,1,9,Side::Red}, {PieceType::Elephant,2,9,Side::Red},
         {PieceType::Advisor,3,9,Side::Red}, {PieceType::General,4,9,Side::Red}, {PieceType::Advisor,5,9,Side::Red},
@@ -83,8 +83,8 @@ void Board::initPieces() {
         // Red cannons
         {PieceType::Cannon,1,7,Side::Red}, {PieceType::Cannon,7,7,Side::Red},
         // Red soldiers
-        {PieceType::Soldier,0,6,Side::Red}, {PieceType::Soldier,2,6,Side::Red}, {PieceType::Soldier,4,6,Side::Red},
-        {PieceType::Soldier,6,6,Side::Red}, {PieceType::Soldier,8,6,Side::Red}
+        //{PieceType::Soldier,0,6,Side::Red}, {PieceType::Soldier,2,6,Side::Red}, {PieceType::Soldier,4,6,Side::Red},
+        //{PieceType::Soldier,6,6,Side::Red}, {PieceType::Soldier,8,6,Side::Red}
     };
     for (const auto& s : setups) {
         int sideIndex = (s.side == Side::Red ? 0 : 1);
@@ -295,9 +295,11 @@ Board::getLegalMoves(Side side) const {
         // apply
         self->movePieceInternal(m.first.x, m.first.y, m.second.x, m.second.y);
         // if king is safe now, keep it
-        if (!self->isInCheck(side))
+
+        if (!self->isInCheck(side)){
             std::cout << "Found escape move: " << m.first.x << "," << m.first.y << " → " << m.second.x << "," << m.second.y << std::endl;
             escapeMoves.push_back(m);
+        }
         // undo
         self->undoMove();
     }
@@ -442,4 +444,18 @@ void Board::undoMove() {
         cp.setBoardPosition(rec.dx, rec.dy);
         pieces.push_back(std::move(cp));
     }
+}
+
+bool Board::isCheckmate() const {
+    std::cout << "Checking for checkmate..." <<  "Current turn: " << (currentTurn == Side::Red ? "Red" : "Black") << std::endl;
+    // 1) Whose turn is it?
+    Side sideToMove = currentTurn;
+
+    // 2) If that side isn't even in check, it can't be checkmate
+    if (!isInCheck(sideToMove)) 
+        return false;
+
+    // 3) Generate all legal “escape” moves.  If there are none, it’s checkmate.
+    auto escapes = getLegalMoves(sideToMove);
+    return escapes.empty();
 }

@@ -1,6 +1,6 @@
 
 // AlphaBetaStrategy.cpp
-#include "AlphaBetaStrategy.h"
+#include "strategy/AlphaBetaStrategy.h"
 #include <limits>
 #include <algorithm>
 #include "Board.h"
