@@ -4,7 +4,7 @@
 #define BOARD_H
 
 #include <vector>
-#include "Piece.h"
+#include "Piece.hpp"
 #include <optional>
 
 static constexpr float CELL_SIZE = 64.f;

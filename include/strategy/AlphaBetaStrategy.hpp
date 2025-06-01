@@ -1,6 +1,6 @@
 // AlphaBetaStrategy.h
 #pragma once
-#include "AIEngine.h"
+#include "AIEngine.hpp"
 
 // A minimax-based chooser with alpha–beta pruning
 class AlphaBetaStrategy : public MoveStrategy {

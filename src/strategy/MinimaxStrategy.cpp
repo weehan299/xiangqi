@@ -1,10 +1,10 @@
 
 // MinimaxStrategy.cpp
-#include "strategy/MinimaxStrategy.h"
+#include "strategy/MinimaxStrategy.hpp"
 #include <limits>
 #include <algorithm>
-#include "Board.h"
-#include "Piece.h"
+#include "Board.hpp"
+#include "Piece.hpp"
 #include <iostream>
 
 namespace {

@@ -1,6 +1,6 @@
 
 // ---------- src/Board.cpp ----------
-#include "Board.h"
+#include "Board.hpp"
 #include <iostream>
 #include <algorithm>
 #include <array>
@@ -68,14 +68,14 @@ void Board::initPieces() {
     struct Setup { PieceType type; int x; int y; Side side; };
     const std::vector<Setup> setups = {
         // Black back rank
-        //{PieceType::Chariot,0,0,Side::Black}, {PieceType::Horse,1,0,Side::Black}, {PieceType::Elephant,2,0,Side::Black},
+        {PieceType::Chariot,0,0,Side::Black}, {PieceType::Horse,1,0,Side::Black}, {PieceType::Elephant,2,0,Side::Black},
         {PieceType::Advisor,3,0,Side::Black}, {PieceType::General,4,0,Side::Black}, {PieceType::Advisor,5,0,Side::Black},
-        //{PieceType::Elephant,6,0,Side::Black}, {PieceType::Horse,7,0,Side::Black}, {PieceType::Chariot,8,0,Side::Black},
+        {PieceType::Elephant,6,0,Side::Black}, {PieceType::Horse,7,0,Side::Black}, {PieceType::Chariot,8,0,Side::Black},
         // Black cannons
-        //{PieceType::Cannon,1,2,Side::Black}, {PieceType::Cannon,7,2,Side::Black},
+        {PieceType::Cannon,1,2,Side::Black}, {PieceType::Cannon,7,2,Side::Black},
         // Black soldiers
-        //{PieceType::Soldier,0,3,Side::Black}, {PieceType::Soldier,2,3,Side::Black}, {PieceType::Soldier,4,3,Side::Black},
-        //{PieceType::Soldier,6,3,Side::Black}, {PieceType::Soldier,8,3,Side::Black},
+        {PieceType::Soldier,0,3,Side::Black}, {PieceType::Soldier,2,3,Side::Black}, {PieceType::Soldier,4,3,Side::Black},
+        {PieceType::Soldier,6,3,Side::Black}, {PieceType::Soldier,8,3,Side::Black},
         // Red back rank
         {PieceType::Chariot,0,9,Side::Red}, {PieceType::Horse,1,9,Side::Red}, {PieceType::Elephant,2,9,Side::Red},
         {PieceType::Advisor,3,9,Side::Red}, {PieceType::General,4,9,Side::Red}, {PieceType::Advisor,5,9,Side::Red},
@@ -83,8 +83,8 @@ void Board::initPieces() {
         // Red cannons
         {PieceType::Cannon,1,7,Side::Red}, {PieceType::Cannon,7,7,Side::Red},
         // Red soldiers
-        //{PieceType::Soldier,0,6,Side::Red}, {PieceType::Soldier,2,6,Side::Red}, {PieceType::Soldier,4,6,Side::Red},
-        //{PieceType::Soldier,6,6,Side::Red}, {PieceType::Soldier,8,6,Side::Red}
+        {PieceType::Soldier,0,6,Side::Red}, {PieceType::Soldier,2,6,Side::Red}, {PieceType::Soldier,4,6,Side::Red},
+        {PieceType::Soldier,6,6,Side::Red}, {PieceType::Soldier,8,6,Side::Red}
     };
     for (const auto& s : setups) {
         int sideIndex = (s.side == Side::Red ? 0 : 1);
@@ -336,38 +336,6 @@ bool Board::isInCheck(Side side) const {
     return false;
 }
 
-/*
-
-bool Board::movePiece(int sx, int sy, int dx, int dy) {
-    Piece* p = pieceAt(sx, sy);
-    if (!p) return false;
-    if (!isLegalMove(p, dx, dy)) {
-        std::cout << "Illegal move for piece at: " << sx << ", " << sy << " to " << dx << ", " << dy << std::endl;
-        return false;
-    }
-    Piece* dest = pieceAt(dx, dy);
-    // Can't capture your own
-    if (dest && dest->getSide() == p->getSide()) return false;
-    // Capture
-    if (dest) {
-        pieces.erase(
-            //remove_if doesn’t actually shrink the vector; 
-            //instead it reorders elements so that all those for which the predicate is false end up at the front, 
-            // and returns an iterator new_end pointing to “one past the last valid element.” 
-            //Everything from new_end to the original end() is now “garbage” and should be erased.
-            std::remove_if(pieces.begin(), pieces.end(), [&](const Piece& q) {
-                return q.getBoardPosition() == sf::Vector2i(dx, dy);
-            }),
-            pieces.end()
-        );
-        std::cout << "Captured piece at: " << dx << ", " << dy << std::endl;
-    }
-    p->setBoardPosition(dx, dy);
-    return true;
-}
-*/
-
-
 bool Board::movePiece(int sx, int sy, int dx, int dy) {
     // Locate the source piece iterator
     auto srcIt = std::find_if(pieces.begin(), pieces.end(), [&](const Piece& q) {
@@ -447,7 +415,7 @@ void Board::undoMove() {
 }
 
 bool Board::isCheckmate() const {
-    std::cout << "Checking for checkmate..." <<  "Current turn: " << (currentTurn == Side::Red ? "Red" : "Black") << std::endl;
+    //std::cout << "Checking for checkmate..." <<  "Current turn: " << (currentTurn == Side::Red ? "Red" : "Black") << std::endl;
     // 1) Whose turn is it?
     Side sideToMove = currentTurn;
 

@@ -1,6 +1,6 @@
 // MinimaxStrategy.h
 #pragma once
-#include "AIEngine.h"
+#include "AIEngine.hpp"
 
 // A placeholder for a minimax-based chooser
 class MinimaxStrategy : public MoveStrategy {

@@ -1,7 +1,7 @@
 
 // src/Piece.cpp
-#include "Piece.h"
-#include "Board.h"
+#include "Piece.hpp"
+#include "Board.hpp"
 
 // define & initialize static members
 float Piece::offsetX = 0.f;

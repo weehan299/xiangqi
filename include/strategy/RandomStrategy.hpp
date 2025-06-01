@@ -1,7 +1,7 @@
 
 // RandomStrategy.h
 #pragma once
-#include "AIEngine.h"
+#include "AIEngine.hpp"
 #include <random>
 
 // A simple random move chooser

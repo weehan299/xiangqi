@@ -2,7 +2,7 @@
 #pragma once
 
 #include <memory>
-#include "Board.h"
+#include "Board.hpp"
 #include <SFML/System/Vector2.hpp>
 
 // Strategy interface for move selection
